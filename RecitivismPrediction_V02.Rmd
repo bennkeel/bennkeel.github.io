@@ -1,0 +1,580 @@
+---
+title: "CBA of Job Training Program and Model"
+author: "Ben Keel"
+date: "2022-12-05"
+output: html_document
+---
+
+# Load In Dataset
+
+```{r setup, warning = FALSE, message = FALSE}
+
+library(tidyverse)
+library(kableExtra)
+library(caret)
+library(knitr) 
+library(pscl)
+library(plotROC)
+library(pROC)
+library(lubridate)
+library(broom)
+library(stargazer)
+library(ggplot2)
+library(gridExtra)
+library(janitor)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
+
+options(scipen = '999')
+
+palette5 <- c("#981FAC","#CB0F8B","#FF006A","#FE4C35","#FE9900")
+palette4 <- c("#981FAC","#FF006A","#FE4C35","#FE9900")
+palette2 <- c("#981FAC","#FF006A")
+palette_9_colors <- c("#FF2AD4","#E53AD8","#CC4ADC","#996AE5","#7F7BE9",
+                      "#668BED","#33ABF6","#19BBFA","#00CCFF")
+palette_3_colors <- c("#FF2AD4","#7F7BE9","#00CCFF")
+palette_2_colors <- c("#FF2AD4", "#00CCFF")
+palette_1_colors <- c("#00CCFF")
+
+g <- glimpse
+
+recitData <- read.csv("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/Chapter7/compas-scores-two-years.csv")
+
+recitData$two_year_recid <- factor(recitData$two_year_recid, levels = c(1, 0))
+
+g(recitData)
+
+```
+
+# Exploratory Analysis
+
+```{r data cleanup, warning = FALSE, message = FALSE}
+
+df <- 
+  recitData %>%
+  filter(days_b_screening_arrest <= 30) %>%
+  filter(days_b_screening_arrest >= -30) %>%
+  filter(is_recid != -1) %>%
+  filter(c_charge_degree != "O") %>%
+  filter(priors_count != "36") %>%
+  filter(priors_count != "25") %>%
+  mutate(length_of_stay = as.numeric(as.Date(c_jail_out) - as.Date(c_jail_in)),
+         priors_count = as.factor(priors_count),
+         Recidivated = as.factor(ifelse(two_year_recid == 1,"Recidivate","notRecidivate")),
+         recidivatedNumeric = ifelse(Recidivated == "Recidivate", 1, 0),
+         race2 = case_when(race == "Caucasian"        ~ "Caucasian",
+                           race == "African-American" ~ "African-American", 
+                           TRUE                       ~ "Other")) %>%
+  dplyr::select(sex,age,age_cat,race,race2,priors_count,two_year_recid,r_charge_desc,
+         c_charge_desc,c_charge_degree,r_charge_degree,juv_other_count,
+         length_of_stay,priors_count,Recidivated,recidivatedNumeric) %>%
+  filter(priors_count != 38)
+
+group_by(df, c_charge_desc) %>%
+  summarize(count = n()) %>%
+  mutate(rate = count / sum(count)) %>%
+  arrange(-rate) %>% head(9) %>%
+  ggplot(aes(reorder(c_charge_desc, rate, FUN = max), 
+             rate, fill = c_charge_desc)) +
+    geom_col() + coord_flip() +
+    scale_fill_manual(values = palette_9_colors) +
+    labs(x = "Charge", y = "Rate", title= "Most frequent initial charges") +
+    plotTheme() + theme(legend.position = "none") 
+
+```
+
+```{r Recitivism by Race}
+
+df %>%
+    group_by(Recidivated, race) %>%
+    summarize(n = n()) %>%
+    mutate(freq = n / sum(n)) %>% filter(Recidivated == "Recidivate") %>%
+    ggplot(aes(reorder(race, -freq), freq)) +
+    geom_bar(stat = "identity", position = "dodge", fill = palette_2_colors[2]) +
+    labs(title = "Recidivism rate by race",
+         y = "Rate", x = "Race") +
+    plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+```{r DV Categorical Features: Personal Info, warning = FALSE, message = FALSE}
+
+
+#Rate Graphs
+subsidy %>%
+    dplyr::select(y, job, marital, education, mortgage, taxbill_in_phl) %>%
+    gather(Variable, value, -y) %>%
+    count(Variable, value, y) %>%
+    group_by(Variable) %>%
+      mutate(rate = lag(n)/n)%>%
+    filter(y == "no" & value != "illiterate")%>%
+      ggplot(., aes(value, rate)) +   
+        geom_bar(position = "dodge", stat="identity") +
+        facet_wrap(~Variable, scales="free") +
+        labs(x="Category", y="Ratio of 'Yes' to 'No'",
+             title = "Feature Associations with the Likelihood of Participation",
+             subtitle = "Categorical features") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+#Quantity Graphs
+subsidy %>%
+    dplyr::select(y, job, marital, education, taxLien, mortgage, taxbill_in_phl) %>%
+    gather(Variable, value, -y) %>%
+    count(Variable, value, y) %>%
+      ggplot(., aes(value, n, fill = y)) +   
+        geom_bar(position = "dodge", stat="identity") +
+        facet_wrap(~Variable, scales="free") +
+        scale_fill_manual(values = palette2) +
+        labs(x="Category", y="Value",
+             title = "Feature Associations with Counts of Participation",
+             subtitle = "Categorical features") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+#First Stab at modeling
+
+```{r Data Partition and "Kitchen Sink" Regression, warning = FALSE, message = FALSE}
+
+train <- df %>% dplyr::sample_frac(.75)
+train_index <- as.numeric(rownames(train))
+test <- df[-train_index, ]
+
+reg.noRace <- glm(Recidivated ~ ., data = 
+                    train %>% dplyr::select(sex, age, age_cat,
+                                juv_other_count, length_of_stay, 
+                                priors_count, Recidivated),
+                family = "binomial"(link = "logit"))
+
+reg.withRace <- glm(Recidivated ~ ., data = 
+                      train %>% dplyr::select(sex, age, age_cat, race,
+                                  juv_other_count, length_of_stay, 
+                                  priors_count, Recidivated),
+                family = "binomial"(link = "logit"))
+
+group_by(df, race2) %>%
+  summarize(averagePriors = mean(as.numeric(priors_count))) %>%
+  ggplot(aes(race2, averagePriors, fill = race2)) +
+    geom_bar(stat="identity", position = "dodge") +
+    labs(title="Average Prior Crimes Count, by Race", y = "Mean Prior Count", x = "Race") +
+    scale_fill_manual(values = palette_3_colors, name = "Recidivism") +
+    plotTheme() + theme(legend.position = "none") 
+
+```
+
+# Cross Validation and Generalization Testing
+
+```{r Kitchen Sink Model CV, warning = FALSE, message = FALSE}
+
+testProbs <- 
+  data.frame(class = test$recidivatedNumeric,
+             probs = predict(reg.noRace, test, type = "response"),
+             Race = test$race2)
+```
+
+```{r Revised Cross Validation, warning = FALSE, message = FALSE}
+
+mutate(testProbs, predClass = ifelse(probs >= .5, 1, 0)) %>%
+  group_by(Race) %>%
+  summarize(Observed.recidivism = sum(class) / n(),
+            Predicted.recidivism = sum(predClass) / n()) %>%
+  gather(Variable, Value, -Race) %>%
+  ggplot(aes(Race, Value)) +
+    geom_bar(aes(fill = Race), position="dodge", stat="identity") +
+    scale_fill_manual(values = palette_3_colors) +
+    facet_wrap(~Variable) +
+    labs(title = "Observed and predicted recidivism", x = "Race", y = "Rate") +
+    plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+## Confusion Metrics by categories
+
+```{r ROC Metrics, warning = FALSE, message = FALSE}
+
+iterateThresholds <- function(data, observedClass, predictedProbs, group) {
+  observedClass <- enquo(observedClass)
+  predictedProbs <- enquo(predictedProbs)
+  group <- enquo(group)
+  x = .01
+  all_prediction <- data.frame()
+  
+  if (missing(group)) {
+  
+    while (x <= 1) {
+    this_prediction <- data.frame()
+    
+    this_prediction <-
+      data %>%
+      mutate(predclass = ifelse(!!predictedProbs > x, 1,0)) %>%
+      count(predclass, !!observedClass) %>%
+      summarize(Count_TN = sum(n[predclass==0 & !!observedClass==0]),
+                Count_TP = sum(n[predclass==1 & !!observedClass==1]),
+                Count_FN = sum(n[predclass==0 & !!observedClass==1]),
+                Count_FP = sum(n[predclass==1 & !!observedClass==0]),
+                Rate_TP = Count_TP / (Count_TP + Count_FN),
+                Rate_FP = Count_FP / (Count_FP + Count_TN),
+                Rate_FN = Count_FN / (Count_FN + Count_TP),
+                Rate_TN = Count_TN / (Count_TN + Count_FP),
+                Accuracy = (Count_TP + Count_TN) / 
+                           (Count_TP + Count_TN + Count_FN + Count_FP)) %>%
+      mutate(Threshold = round(x,2))
+    
+    all_prediction <- rbind(all_prediction,this_prediction)
+    x <- x + .01
+  }
+  return(all_prediction)
+  }
+  else if (!missing(group)) { 
+   while (x <= 1) {
+    this_prediction <- data.frame()
+    
+    this_prediction <-
+      data %>%
+      mutate(predclass = ifelse(!!predictedProbs > x, 1,0)) %>%
+      group_by(!!group) %>%
+      count(predclass, !!observedClass) %>%
+      summarize(Count_TN = sum(n[predclass==0 & !!observedClass==0]),
+                Count_TP = sum(n[predclass==1 & !!observedClass==1]),
+                Count_FN = sum(n[predclass==0 & !!observedClass==1]),
+                Count_FP = sum(n[predclass==1 & !!observedClass==0]),
+                Rate_TP = Count_TP / (Count_TP + Count_FN),
+                Rate_FP = Count_FP / (Count_FP + Count_TN),
+                Rate_FN = Count_FN / (Count_FN + Count_TP),
+                Rate_TN = Count_TN / (Count_TN + Count_FP),
+                Accuracy = (Count_TP + Count_TN) / 
+                           (Count_TP + Count_TN + Count_FN + Count_FP)) %>%
+      mutate(Threshold = round(x, 2))
+    
+    all_prediction <- rbind(all_prediction, this_prediction)
+    x <- x + .01
+  }
+  return(all_prediction)
+  }
+}
+
+filter(testProbs.thresholds, Threshold == .5)  %>%
+  dplyr::select(Accuracy, Race, starts_with("Rate")) %>%
+  gather(Variable, Value, -Race) %>%
+    ggplot(aes(Variable, Value, fill = Race)) +
+      geom_bar(aes(fill = Race), position = "dodge", stat = "identity") +
+      scale_fill_manual(values = palette_3_colors) +
+      labs(title="Error Rates and Error Types by Race",
+           subtitle = "50% threshold, untuned model", x = "Outcome",y = "Rate") +
+      plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+testProbs.thresholds.equity <- testProbs.thresholds %>%
+  filter((Threshold == .5 & Race != "African-American") | (Threshold == .6 & Race == "African-American"))
+
+filter(testProbs.thresholds, (Threshold == .5 & Race != "African-American") | (Threshold == .6 & Race == "African-American"))  %>%
+  dplyr::select(Accuracy, Race, starts_with("Rate")) %>%
+  gather(Variable, Value, -Race) %>%
+    ggplot(aes(Variable, Value, fill = Race)) +
+      geom_bar(aes(fill = Race), position = "dodge", stat = "identity") +
+      scale_fill_manual(values = palette_3_colors) +
+      labs(title="Error Rates and Error Types by Race",
+           subtitle = "60% Threshold of African Americans, 50% threshold for Others", x = "Outcome",y = "Rate") +
+      plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+```
+
+```{r ROC Curve, warning = FALSE, message = FALSE}
+
+g(testProbs)
+
+auc(testProbs$class, testProbs$probs)
+
+testProbs.thresholds
+
+aucTable <- 
+  testProbs %>% 
+  group_by(Race) %>% 
+  dplyr::summarize(AUC = auc(class, probs)) %>% 
+  mutate(AUC = as.character(round(AUC, 3))) 
+
+mutate(testProbs.thresholds, pointSize = ifelse(Threshold == .48, 24, 16)) %>%
+  ggplot(aes(Rate_FP, Rate_TP, colour=Race)) + 
+  geom_point(aes(shape = pointSize)) + geom_line() + scale_shape_identity() +
+  scale_color_manual(values = palette_3_colors) +
+  geom_abline(slope = 1, intercept = 0, size = 1.5, color = 'grey') +
+  annotation_custom(tableGrob(aucTable, rows = NULL), xmin = .65, xmax = 1, ymin = 0, ymax = .25) +
+  labs(title="ROC Curves by race", x="False Positive Rate", y="True Positive Rate") +
+  plotTheme()
+
+```
+
+# Cost Benefit Analysis
+
+## Equations
+
+**True Positive Revenue:** 
+
+Cost/Benefit: \$0
+
+**True Negative Revenue:** 
+
+Cost/Benefit: -\$250 recruitment + 0.70 successes \* -\$6400 jobs training program + (potential cost savings of \$28000 re-incarceration cost \* 0.73 re-incarceration chance upon recitivism \* 12% difference because of jobs program)
+
+**False Positive Revenue:** 
+
+Cost/Benefit: Lost potential of -\$28000 re-incarceration cost \* 0.73 re-incarceration chance upon recitivism \* 12% difference because of jobs program
+
+**False Negative Revenue:** 
+
+Cost/Benefit: -\$250 recruitment + (0.70 successes \* -\$6400 jobs training program)
+
+## Table of Costs and Benefits
+
+These are the metrics when assuming a threshold of 0.50.
+
+```{r Cost Benefit Table, warning = FALSE, message = FALSE}
+
+totalPpl <- 1540
+
+      testProbs.thresholds %>%
+      filter((Threshold == 0.5))%>%
+        
+           testProbs.thresholds.equity %>%
+        nfjskb
+
+
+cost_benefit_table <-
+      testProbs.thresholds.equity %>%
+      summarize(True_Negative = sum(Count_TN),
+                True_Positive = sum(Count_TP),
+                False_Negative = sum(Count_FN),
+                False_Positive = sum(Count_FP)) %>%
+       gather(Variable, Model_Count) %>%
+       mutate(Model_Cost =
+               ifelse(Variable == "True_Negative", Model_Count * (
+                 250 #recruitment
+                 +(0.70 * 6400)
+                 -(0.12 * 28000)
+                 ), #jobs program and 12% savings cost to prisons
+               ifelse(Variable == "True_Positive",(Model_Count * (0)), #no effect due to jobs program
+               ifelse(Variable == "False_Negative", Model_Count * (
+                 250
+                 +(0.70 * 6400)), #jobs program cost
+               ifelse(Variable == "False_Positive", Model_Count * (
+                 +0.12 * 28000), #lost possibile benefit of jobs program
+               0))))) %>%
+         mutate(Quota_Count =
+               ifelse(Variable == "True_Negative", totalPpl*0.2,
+               ifelse(Variable == "True_Positive", totalPpl*0.3,
+               ifelse(Variable == "False_Negative", totalPpl*0.25,
+               ifelse(Variable == "False_Positive", totalPpl*0.25, 0))))) %>%
+       mutate(Quota_Cost =
+             ifelse(Variable == "True_Negative", R_True_Negative * (
+                 250 #recruitment
+                 +(0.70 * 6400)
+                 -(0.12 * 28000)
+                 ), #jobs program and 12% savings cost to prisons
+             ifelse(Variable == "True_Positive",(R_True_Positive * (0)), #prison cost
+             ifelse(Variable == "False_Negative", R_False_Negative * (
+                250
+                 +(0.70 * 6400)), #prison cost
+             ifelse(Variable == "False_Positive", R_False_Positive* (
+                 +0.12 * 28000 #lost possibile benefit of jobs program
+             ), 0))))) %>%
+    adorn_totals("row")%>%
+    bind_cols(data.frame(Description = c(
+              "We correctly predicted no recitivism, recruited 70% for jobs program, saved cost on prisons.",
+              "We correctly predicted recitivism, did not recruit, no effect of program",
+              "We incorrectly predicted no recitivism, recruited 70% for jobs program, paid prison cost",
+              "We incorrectly predicted recitivism, lost potential savings on prisons.",
+              "Total cost to the city")))
+
+kable(cost_benefit_table,
+       caption = "Cost/Benefit Table") %>% kable_styling()
+
+
+```
+
+## Confusion Metrics For Each Outcome
+
+```{r Thresholds for Each Confusion Metric, warning = FALSE, message = FALSE}
+
+
+g(testProbs)
+
+iterateThresholds <- function(data) {
+  x = .01
+  all_prediction <- data.frame()
+  while (x <= 1) {
+  
+  this_prediction <-
+      testProbs %>%
+      mutate(predOutcome = ifelse(probs > x, 1, 0)) %>%
+      count(predOutcome, class) %>%
+      summarize(True_Negative = sum(n[predOutcome==0 & class==0]),
+                True_Positive = sum(n[predOutcome==1 & class==1]),
+                False_Negative = sum(n[predOutcome==0 & class==1]),
+                False_Positive = sum(n[predOutcome==1 & class==0])) %>%
+     gather(Variable, Count) %>%
+     mutate(Cost =
+               ifelse(Variable == "True_Negative", Count * -(250+(0.7*6400))+(0.12*0.73*28000),
+               ifelse(Variable == "True_Positive", Count * (0),
+               ifelse(Variable == "False_Negative", Count * -(250+(0.7 * 6400)),
+               ifelse(Variable == "False_Positive", Count * -(0.12*0.73*28000), 0)))),
+            Threshold = x)
+  
+  all_prediction <- rbind(all_prediction, this_prediction)
+  x <- x + .01
+  }
+return(all_prediction)
+}
+
+whichThreshold <- iterateThresholds(filter(testProbs, Race == "African American"))
+
+g(test)
+
+#Revenue Confusion Matrix Plot
+revThresholdPlot <- whichThreshold %>%
+  ggplot(.,aes(Threshold, Cost, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Threshold as a Function of Cost") +
+  plotTheme() +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
+
+#Count of Subsidies Confusion Matrix Plot
+countThresholdPlot <- whichThreshold %>%
+  ggplot(.,aes(Threshold, Count, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Threshold as a function of Total Counts") +
+  plotTheme() +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
+
+grid.arrange(revThresholdPlot, countThresholdPlot, nrow=2)
+
+```
+
+## Total Revenue and Count of Credits
+
+```{r Optimal Thresholds , warning = FALSE, message = FALSE}
+
+whichThreshold_cost <- 
+whichThreshold %>% 
+    group_by(Threshold) %>% 
+    summarize(Cost = sum(Cost))
+
+costOptimalPlot <-
+  ggplot(whichThreshold_cost)+
+geom_line(aes(x = Threshold, y = Cost))+
+geom_vline(xintercept =  pull(arrange(whichThreshold_cost, -Cost)[1,1]))+
+  labs(title = "Net Cost by Threshold",
+       subtitle = "Vertical Line Denotes Optimal Threshold")
+
+whichThreshold_counts <- 
+    whichThreshold%>% 
+    group_by(Threshold)%>%
+    mutate(TotalCount = ifelse(Variable == "True_Negative", 0,
+                     ifelse(Variable == "True_Positive", Count,
+               ifelse(Variable == "False_Negative", 0,
+               ifelse(Variable == "False_Positive", Count * -1, 0)))))%>%
+    summarize(TotalCount = sum(TotalCount))%>%
+  round(digits=2)
+  
+Optimal_Threshold <- pull(arrange(whichThreshold_counts, -TotalCount)[1,1])
+
+countOptimalPlot <-
+    ggplot(whichThreshold_counts)+
+geom_line(aes(x = Threshold, y = TotalCount))+
+geom_vline(xintercept =  pull(arrange(whichThreshold_counts, -TotalCount)[1,1]))+
+  labs(title = "Net Participants by Threshold",
+       subtitle = "Vertical Line Denotes Optimal Threshold",
+       y= "Total Count (TP - FP)")
+
+grid.arrange(countOptimalPlot, costOptimalPlot, ncol=2)
+
+
+```
+
+## Optimal Thresholds
+
+```{r 0.50 and Optimal Threshold Measures, warning = FALSE, message = FALSE}
+
+whichThreshold_Summary <-
+  whichThreshold_counts %>%
+  left_join(whichThreshold_cost, by="Threshold")%>%
+  filter(Threshold == 0.50 | Threshold == Optimal_Threshold)
+
+whichThreshold_Summary%>%
+  kable(
+    caption = "<strong></strong>",
+    escape= FALSE,
+    format="html",
+    row.names = FALSE,
+    align="l")%>%
+  kable_styling()
+
+```
+
+
+```{r Cost Benefit Table, warning = FALSE, message = FALSE}
+
+totalPpl <- 1540
+
+
+
+cost_benefit_table <-
+      testProbs.thresholds %>%
+      filter((Threshold == 0.5))%>%
+      summarize(True_Negative = sum(Count_TN),
+                True_Positive = sum(Count_TP),
+                False_Negative = sum(Count_FN),
+                False_Positive = sum(Count_FP)) %>%
+       gather(Variable, Model_Count) %>%
+       mutate(Model_Cost =
+               ifelse(Variable == "True_Negative", Model_Count * (
+                 250 #recruitment
+                 +(0.70 * 6400)
+                 -(0.12 * 0.73 * 28000)
+                 ), #jobs program and 12% savings cost to prisons
+               ifelse(Variable == "True_Positive",(Model_Count * (0)), #no effect due to jobs program
+               ifelse(Variable == "False_Negative", Model_Count * (
+                 250
+                 +(0.70 * 6400) #jobs program
+                 +(0.73 * 21000)), #prison cost
+               ifelse(Variable == "False_Positive", Model_Count * (
+                 -0.12*0.73*28000), #lost possibile benefit of jobs program
+               0))))) %>%
+         mutate(Quota_Count =
+               ifelse(Variable == "True_Negative", totalPpl*0.2,
+               ifelse(Variable == "True_Positive", totalPpl*0.3,
+               ifelse(Variable == "False_Negative", totalPpl*0.25,
+               ifelse(Variable == "False_Positive", totalPpl*0.25, 0))))) %>%
+       mutate(Quota_Cost =
+             ifelse(Variable == "True_Negative", R_True_Negative * (
+                 250 #recruitment
+                 +(0.70 * 6400)
+                 -(0.12 * 0.73 * 28000)
+                 ), #jobs program and 12% savings cost to prisons
+             ifelse(Variable == "True_Positive",(R_True_Positive * (0)), #prison cost
+             ifelse(Variable == "False_Negative", R_False_Negative * (
+                250
+                 +(0.70 * 6400) #jobs program
+                 +(0.73 * 21000)), #prison cost
+             ifelse(Variable == "False_Positive", R_False_Positive* (
+                 -0.12*0.73*28000 #lost possibile benefit of jobs program
+             ), 0))))) %>%
+    adorn_totals("row")%>%
+    bind_cols(data.frame(Description = c(
+              "We correctly predicted no recitivism, recruited 70% for jobs program, saved cost on prisons.",
+              "We correctly predicted recitivism, did not recruit, no effect of program",
+              "We incorrectly predicted no recitivism, recruited 70% for jobs program, paid prison cost",
+              "We incorrectly predicted recitivism, lost potential savings on prisons.",
+              "Total cost to the city")))
+kable(cost_benefit_table,
+       caption = "Cost/Benefit Table") %>% kable_styling()
+
+
+```
+
