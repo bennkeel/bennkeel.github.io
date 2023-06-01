@@ -1,0 +1,142 @@
+---
+title: "Bike Lane Tweets: Setting up and Running rtweet"
+author: "Ben Keel, Charlie Huemmler, Yuhao Tom Sun"
+date: "12/20/2022"
+output: rmdformats::readthedown
+---
+
+## Setting Up ` rtweet`
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "D:\\MUSAFall\\MUSA500\\HW 6")
+
+options(scipen=999) 
+
+#install.packages("rtweet")
+library(rtweet)
+```
+
+### Authentication
+
+```{r warning=FALSE, message=FALSE, cache=FALSE}
+auth_setup_default()
+```
+
+## Getting tweet contents through ` rtweet` functions
+
+A look at the first 10 tweets of about 3500 that seem to be quickly collected, possibly ignoring the rate limit? Curious. 
+
+```{r warning=FALSE, message=FALSE, cache=FALSE}
+bikeLanes <- search_tweets("bike lane", n = 9000, retryonratelimit = TRUE, include_rts = FALSE)
+
+bikeLanes.geo <- filter(bikeLanes, geo != "NA")
+
+head(bikeLanes$text, n=10)
+
+```
+
+
+### Geographic Dissappointment 
+
+Unsure how to filter or represent the geographic data with so many NA's in the mix, we left this aspect alone.
+
+```{r warning=FALSE, message=FALSE, cache=FALSE}
+bikeLanes$place[[1]]$geo
+bikeLanes$place[[1]]$coordinates
+bikeLanes$place[[1]]$place
+```
+
+## Text Mining: Data Cleaning
+
+Loading required packages.
+
+```{r warning=FALSE, message=FALSE, cache=FALSE}
+#install.packages(c("tm","RTextTools","SnowballC"))
+
+library(tm)
+library(RTextTools)
+library(SnowballC)
+```
+
+Reducing the previous collection of tweets to just a data frame of text.
+
+```{r warning=FALSE, message=FALSE, cache=FALSE}
+bikeLanes_Text <- data.frame(text = bikeLanes$text)
+```
+
+We convert the data frame to a corpus and remove many different terms, phrases, and symbols from the text.
+
+```{r warning=FALSE, message=FALSE, cache=FALSE}
+myCorpus <- Corpus(VectorSource(bikeLanes_Text$text))
+
+toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+myCorpus <- tm_map(myCorpus, tolower) #added to make sure all terms were consistently cased.
+myCorpus <- tm_map(myCorpus, toSpace, "@")
+myCorpus <- tm_map(myCorpus, toSpace, "/")
+myCorpus <- tm_map(myCorpus, toSpace, "]")
+myCorpus <- tm_map(myCorpus, toSpace, "$")
+myCorpus <- tm_map(myCorpus, toSpace, "&amp;") #added to remove ampersands
+
+myCorpus <- tm_map(myCorpus, function(x) iconv(x, "latin1", "ASCII", sub=""))
+
+myCorpus <- tm_map(myCorpus, removeNumbers)
+
+myCorpus <- tm_map(myCorpus, removePunctuation)
+
+stopwords("english")
+myCorpus <- tm_map(myCorpus, removeWords, stopwords("english"))
+
+myCorpus <- tm_map(myCorpus, removeWords, c("By", "the", "http", "may", "ttp",
+                                           "qhb...", "https", "http...", "for", 
+                                           "tco", "the", "that", "this", "the", "that", "this", "you", "amp", "ive", "gtfnaxk", "just", "they", "that", "someone", "its","december")) #added to remove additional particle words and the month of the collection.
+
+myCorpus <- tm_map(myCorpus, stripWhitespace)
+
+```
+
+Exporting a word cloud containing words appearing at least 50 times in the corpus of tweets.
+
+```{r 50x unstemmed word cloud warning=FALSE message=FALSE, cache=FALSE}
+dtm <- DocumentTermMatrix(myCorpus)
+
+freq <- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
+head(freq, n=100)
+
+palette_5_colors <- c("#78c679","#41ab5d","#238443","#006837","#004529")
+
+wordcloud(names(freq), freq, min.freq=50, colors=palette_5_colors)
+
+```
+
+Stemming the corpus, exporting a word cloud containing words appearing at least 20 times in the corpus of tweets.
+
+```{r 20x word clouds warning=FALSE message=FALSE, cache=FALSE}
+
+myCorpus <- tm_map(myCorpus, stemDocument)
+
+dtm <- DocumentTermMatrix(myCorpus)
+
+freq <- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
+head(freq, n=100)
+
+wordcloud(names(freq), freq, min.freq=20, colors=palette_5_colors)
+
+```
+
+Focusing on the top words, exporting a word cloud containing words appearing at least 250 times in the corpus of tweets, not including "bike lane".
+
+```{r 250x word cloud warning=FALSE message=FALSE, cache=FALSE}
+
+myCorpus <- tm_map(myCorpus, removeWords, c("bike", "lane")) #remove 'bike lane' bc the scale is too large
+
+dtm <- DocumentTermMatrix(myCorpus)
+
+freq <- sort(colSums(as.matrix(dtm)), decreasing=TRUE)
+head(freq, n=100)
+
+palette_5_colors <- c("#78c679","#41ab5d","#238443","#006837","#004529")
+
+wordcloud(names(freq), freq, min.freq=250, colors=palette_5_colors)
+
+```

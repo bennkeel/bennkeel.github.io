@@ -1,0 +1,445 @@
+---
+title: "CBA of Job Training Program and Model"
+author: "Ben Keel"
+date: "2022-12-05"
+output: html_document
+---
+
+# Load In Dataset
+
+```{r setup, warning = FALSE, message = FALSE}
+
+
+library(tidyverse)
+library(kableExtra)
+library(caret)
+library(knitr) 
+library(pscl)
+library(plotROC)
+library(pROC)
+library(lubridate)
+library(broom)
+library(stargazer)
+library(ggplot2)
+library(gridExtra)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
+
+options(scipen = '999')
+
+palette5 <- c("#981FAC","#CB0F8B","#FF006A","#FE4C35","#FE9900")
+palette4 <- c("#981FAC","#FF006A","#FE4C35","#FE9900")
+palette2 <- c("#981FAC","#FF006A")
+palette_9_colors <- c("#FF2AD4","#E53AD8","#CC4ADC","#996AE5","#7F7BE9",
+                      "#668BED","#33ABF6","#19BBFA","#00CCFF")
+palette_3_colors <- c("#FF2AD4","#7F7BE9","#00CCFF")
+palette_2_colors <- c("#FF2AD4", "#00CCFF")
+palette_1_colors <- c("#00CCFF")
+
+g <- glimpse
+
+recitData <- read.csv("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/Chapter7/compas-scores-two-years.csv")
+
+recitData$two_year_recid <- factor(recitData$two_year_recid, levels = c(1, 0))
+
+g(recitData)
+
+```
+
+# Exploratory Analysis
+
+
+```{r data cleanup, warning = FALSE, message = FALSE}
+
+df <- 
+  recitData %>%
+  filter(days_b_screening_arrest <= 30) %>%
+  filter(days_b_screening_arrest >= -30) %>%
+  filter(is_recid != -1) %>%
+  filter(c_charge_degree != "O") %>%
+  filter(priors_count != "36") %>%
+  filter(priors_count != "25") %>%
+  mutate(length_of_stay = as.numeric(as.Date(c_jail_out) - as.Date(c_jail_in)),
+         priors_count = as.factor(priors_count),
+         Recidivated = as.factor(ifelse(two_year_recid == 1,"Recidivate","notRecidivate")),
+         recidivatedNumeric = ifelse(Recidivated == "Recidivate", 1, 0),
+         race2 = case_when(race == "Caucasian"        ~ "Caucasian",
+                           race == "African-American" ~ "African-American", 
+                           TRUE                       ~ "Other")) %>%
+  dplyr::select(sex,age,age_cat,race,race2,priors_count,two_year_recid,r_charge_desc,
+         c_charge_desc,c_charge_degree,r_charge_degree,juv_other_count,
+         length_of_stay,priors_count,Recidivated,recidivatedNumeric) %>%
+  filter(priors_count != 38)
+
+group_by(df, c_charge_desc) %>%
+  summarize(count = n()) %>%
+  mutate(rate = count / sum(count)) %>%
+  arrange(-rate) %>% head(9) %>%
+  ggplot(aes(reorder(c_charge_desc, rate, FUN = max), 
+             rate, fill = c_charge_desc)) +
+    geom_col() + coord_flip() +
+    scale_fill_manual(values = palette_9_colors) +
+    labs(x = "Charge", y = "Rate", title= "Most frequent initial charges") +
+    plotTheme() + theme(legend.position = "none") 
+
+```
+
+
+```{r Recitivism by Race}
+
+df %>%
+    group_by(Recidivated, race) %>%
+    summarize(n = n()) %>%
+    mutate(freq = n / sum(n)) %>% filter(Recidivated == "Recidivate") %>%
+    ggplot(aes(reorder(race, -freq), freq)) +
+    geom_bar(stat = "identity", position = "dodge", fill = palette_2_colors[2]) +
+    labs(title = "Recidivism rate by race",
+         y = "Rate", x = "Race") +
+    plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+#First Stab at modeling
+
+```{r Data Partition and "Kitchen Sink" Regression, warning = FALSE, message = FALSE}
+
+train <- df %>% dplyr::sample_frac(.75)
+train_index <- as.numeric(rownames(train))
+test <- df[-train_index, ]
+
+reg.noRace <- glm(Recidivated ~ ., data = 
+                    train %>% dplyr::select(sex, age, age_cat,
+                                juv_other_count, length_of_stay, 
+                                priors_count, Recidivated),
+                family = "binomial"(link = "logit"))
+
+reg.withRace <- glm(Recidivated ~ ., data = 
+                      train %>% dplyr::select(sex, age, age_cat, race,
+                                  juv_other_count, length_of_stay, 
+                                  priors_count, Recidivated),
+                family = "binomial"(link = "logit"))
+
+group_by(df, race2) %>%
+  summarize(averagePriors = mean(as.numeric(priors_count))) %>%
+  ggplot(aes(race2, averagePriors, fill = race2)) +
+    geom_bar(stat="identity", position = "dodge") +
+    labs(title="Mean priors by race", y = "Mean Priors", x = "Race") +
+    scale_fill_manual(values = palette_3_colors, name = "Recidivism") +
+    plotTheme() + theme(legend.position = "none") 
+
+```
+
+# Cross Validation and Generalization Testing
+
+```{r Kitchen Sink Model CV, warning = FALSE, message = FALSE}
+
+testProbs <- 
+  data.frame(class = test$recidivatedNumeric,
+             probs = predict(reg.noRace, test, type = "response"),
+             Race = test$race2)
+```
+
+```{r Revised Cross Validation, warning = FALSE, message = FALSE}
+
+mutate(testProbs, predClass = ifelse(probs >= .5, 1, 0)) %>%
+  group_by(Race) %>%
+  summarize(Observed.recidivism = sum(class) / n(),
+            Predicted.recidivism = sum(predClass) / n()) %>%
+  gather(Variable, Value, -Race) %>%
+  ggplot(aes(Race, Value)) +
+    geom_bar(aes(fill = Race), position="dodge", stat="identity") +
+    scale_fill_manual(values = palette_3_colors) +
+    facet_wrap(~Variable) +
+    labs(title = "Observed and predicted recidivism", x = "Race", y = "Rate") +
+    plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+
+## Confusion Metrics by categories
+
+```{r ROC Metrics, warning = FALSE, message = FALSE}
+
+iterateThresholds <- function(data, observedClass, predictedProbs, group) {
+  observedClass <- enquo(observedClass)
+  predictedProbs <- enquo(predictedProbs)
+  group <- enquo(group)
+  x = .01
+  all_prediction <- data.frame()
+  
+  if (missing(group)) {
+  
+    while (x <= 1) {
+    this_prediction <- data.frame()
+    
+    this_prediction <-
+      data %>%
+      mutate(predclass = ifelse(!!predictedProbs > x, 1,0)) %>%
+      count(predclass, !!observedClass) %>%
+      summarize(Count_TN = sum(n[predclass==0 & !!observedClass==0]),
+                Count_TP = sum(n[predclass==1 & !!observedClass==1]),
+                Count_FN = sum(n[predclass==0 & !!observedClass==1]),
+                Count_FP = sum(n[predclass==1 & !!observedClass==0]),
+                Rate_TP = Count_TP / (Count_TP + Count_FN),
+                Rate_FP = Count_FP / (Count_FP + Count_TN),
+                Rate_FN = Count_FN / (Count_FN + Count_TP),
+                Rate_TN = Count_TN / (Count_TN + Count_FP),
+                Accuracy = (Count_TP + Count_TN) / 
+                           (Count_TP + Count_TN + Count_FN + Count_FP)) %>%
+      mutate(Threshold = round(x,2))
+    
+    all_prediction <- rbind(all_prediction,this_prediction)
+    x <- x + .01
+  }
+  return(all_prediction)
+  }
+  else if (!missing(group)) { 
+   while (x <= 1) {
+    this_prediction <- data.frame()
+    
+    this_prediction <-
+      data %>%
+      mutate(predclass = ifelse(!!predictedProbs > x, 1,0)) %>%
+      group_by(!!group) %>%
+      count(predclass, !!observedClass) %>%
+      summarize(Count_TN = sum(n[predclass==0 & !!observedClass==0]),
+                Count_TP = sum(n[predclass==1 & !!observedClass==1]),
+                Count_FN = sum(n[predclass==0 & !!observedClass==1]),
+                Count_FP = sum(n[predclass==1 & !!observedClass==0]),
+                Rate_TP = Count_TP / (Count_TP + Count_FN),
+                Rate_FP = Count_FP / (Count_FP + Count_TN),
+                Rate_FN = Count_FN / (Count_FN + Count_TP),
+                Rate_TN = Count_TN / (Count_TN + Count_FP),
+                Accuracy = (Count_TP + Count_TN) / 
+                           (Count_TP + Count_TN + Count_FN + Count_FP)) %>%
+      mutate(Threshold = round(x, 2))
+    
+    all_prediction <- rbind(all_prediction, this_prediction)
+    x <- x + .01
+  }
+  return(all_prediction)
+  }
+}
+
+testProbs.thresholds <- 
+  iterateThresholds(data=testProbs, observedClass = class, 
+                    predictedProbs = probs, group = Race)
+
+filter(testProbs.thresholds, Threshold == .5)  %>%
+  dplyr::select(Accuracy, Race, starts_with("Rate")) %>%
+  gather(Variable, Value, -Race) %>%
+    ggplot(aes(Variable, Value, fill = Race)) +
+      geom_bar(aes(fill = Race), position = "dodge", stat = "identity") +
+      scale_fill_manual(values = palette_3_colors) +
+      labs(title="Confusion matrix rates by race",
+           subtitle = "50% threshold", x = "Outcome",y = "Rate") +
+      plotTheme() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+```
+
+
+```{r ROC Curve, warning = FALSE, message = FALSE}
+
+g(testProbs)
+
+aucTable <- 
+  testProbs %>% 
+  group_by(Race) %>% 
+  summarize(AUC = auc(class,probs)) %>% 
+  mutate(AUC = as.character(round(AUC, 3))) 
+
+mutate(testProbs.thresholds, pointSize = ifelse(Threshold == .48, 24, 16)) %>%
+  ggplot(aes(Rate_FP, Rate_TP, colour=Race)) + 
+  geom_point(aes(shape = pointSize)) + geom_line() + scale_shape_identity() +
+  scale_color_manual(values = palette_3_colors) +
+  geom_abline(slope = 1, intercept = 0, size = 1.5, color = 'grey') +
+  labs(title="ROC Curves by race", x="False Positive Rate", y="True Positive Rate") +
+  plotTheme()
+
+```
+
+# Cost Benefit Analysis
+
+## Equations
+
+**True Positive Revenue:** "We predicted the citizen would participate in the subsidy program once marketed to (\$2850 cost), and they did. 25% of participants complete program process and receive the subsidy of \$5000. They and their neighbors benefit from increased housing value (\$10,000 and \$56,000 respectively), and the city captures that annually in property taxes (1.4%) and sales taxes (3.3%). We assume 10% of these homes are sold annually. Repairs are estimated to last 10+ years on average, so annual benefit is applied for 15 years."
+
+Cost/Benefit: -\$2850 marketing + 0.25 successes \* (-\$5000 subsidy + ((\$10,000 + \$56,000)\*0.02 annual property tax + ((\$10,000 + \$56,000)\*0.10 home sales \*0.05 real estate transfer tax))\* 15 years).
+
+**True Negative Revenue:** "We predicted citizen would not participate in the credit program, did not allocate marketing resources toward them. Citizen did not participate in the program, no credit allocated."
+
+Cost/Benefit: \$0
+
+**False Positive Revenue:** "We predicted citizen would participate in credit program, allocated marketing resources toward them (\$2850 cost). citizen did not participate the credit program."
+
+Cost/Benefit: -\$2850
+
+**False Negative Revenue:** "Predicted citizen would not participate in the credit program, did not allocate marketing resources. Citizen participated in the program no cost to the campaign."
+
+Cost/Benefit: \$0
+
+## Table of Costs and Benefits
+
+These are the metrics when assuming a threshold of 0.50.
+
+```{r Cost Benefit Table, warning = FALSE, message = FALSE}
+
+cost_benefit_table <-
+   testProbs %>%
+      count(predOutcome, Outcome) %>%
+      summarize(True_Negative = sum(n[predOutcome==0 & Outcome==0]),
+                True_Positive = sum(n[predOutcome==1 & Outcome==1]),
+                False_Negative = sum(n[predOutcome==0 & Outcome==1]),
+                False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
+       gather(Variable, Count) %>%
+       mutate(Revenue =
+               ifelse(Variable == "True_Negative", Count * 0,
+               ifelse(Variable == "True_Positive",(
+                 (-2850 + #marketing cost
+                  0.25*(-5000 #successful participation and subsidy 
+                 +((10000+56000)*0.02 #property tax
+                 +(10000+56000)*0.10*0.05) #real estate transfer tax
+                 *15)) #applied over 15 years
+                 * Count),
+               ifelse(Variable == "False_Negative", Count * 0,
+               ifelse(Variable == "False_Positive", (-2850) * Count, 0))))) %>%
+    bind_cols(data.frame(Description = c(
+              "We correctly predicted no participation",
+              "We correctly predicted participation, with 25% receiving subsidy",
+              "We predicted no particiption and the citizen pariticpated",
+              "We predicted particiption and citizen did not participate")))
+
+kable(cost_benefit_table,
+       caption = "Cost/Benefit Table") %>% kable_styling()
+
+
+```
+
+## Confusion Metrics For Each Outcome
+
+```{r Thresholds for Each Confusion Metric, warning = FALSE, message = FALSE}
+
+iterateThresholds <- function(data) {
+  x = .01
+  all_prediction <- data.frame()
+  while (x <= 1) {
+  
+  this_prediction <-
+      testProbs %>%
+      mutate(predOutcome = ifelse(Probs > x, 1, 0)) %>%
+      count(predOutcome, Outcome) %>%
+      summarize(True_Negative = sum(n[predOutcome==0 & Outcome==0]),
+                True_Positive = sum(n[predOutcome==1 & Outcome==1]),
+                False_Negative = sum(n[predOutcome==0 & Outcome==1]),
+                False_Positive = sum(n[predOutcome==1 & Outcome==0])) %>%
+     gather(Variable, Count) %>%
+     mutate(Revenue =
+               ifelse(Variable == "True_Negative", Count * 0,
+               ifelse(Variable == "True_Positive",((-2850  
+                                                  + 0.25*(-5000 
+                                                  + ((10000+56000)*0.02 
+                                                  + (10000+56000)*0.10*0.05)
+                                                  *15))
+                                                  * Count),
+               ifelse(Variable == "False_Negative", (0) * Count,
+               ifelse(Variable == "False_Positive", (-2850) * Count, 0)))),
+            Threshold = x)
+  
+  all_prediction <- rbind(all_prediction, this_prediction)
+  x <- x + .01
+  }
+return(all_prediction)
+}
+
+whichThreshold <- iterateThresholds(testProbs2)
+
+#Revenue Confusion Matrix Plot
+revThresholdPlot <- whichThreshold %>%
+  ggplot(.,aes(Threshold, Revenue, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Threshold as a Function of Revenue") +
+  plotTheme() +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
+
+#Count of Subsidies Confusion Matrix Plot
+countThresholdPlot <- whichThreshold %>%
+  ggplot(.,aes(Threshold, Count, colour = Variable)) +
+  geom_point() +
+  scale_colour_manual(values = palette5[c(5, 1:3)]) +    
+  labs(title = "Threshold as a function of Total Counts") +
+  plotTheme() +
+  guides(colour=guide_legend(title = "Confusion Matrix"))
+
+grid.arrange(revThresholdPlot, countThresholdPlot, nrow=2)
+
+```
+
+
+## Total Revenue and Count of Credits
+
+```{r Optimal Thresholds , warning = FALSE, message = FALSE}
+
+whichThreshold_revenue <- 
+whichThreshold %>% 
+    group_by(Threshold) %>% 
+    summarize(Revenue = sum(Revenue))%>%
+    round(digits=2)
+
+revOptimalPlot <-
+  ggplot(whichThreshold_revenue)+
+geom_line(aes(x = Threshold, y = Revenue))+
+geom_vline(xintercept =  pull(arrange(whichThreshold_revenue, -Revenue)[1,1]))+
+  labs(title = "Net Revenue by Threshold",
+       subtitle = "Vertical Line Denotes Optimal Threshold")
+
+whichThreshold_counts <- 
+    whichThreshold%>% 
+    group_by(Threshold)%>%
+    mutate(TotalCount = ifelse(Variable == "True_Negative", 0,
+                     ifelse(Variable == "True_Positive", Count,
+               ifelse(Variable == "False_Negative", 0,
+               ifelse(Variable == "False_Positive", Count * -1, 0)))))%>%
+    summarize(TotalCount = sum(TotalCount))%>%
+  round(digits=2)
+  
+Optimal_Threshold <- pull(arrange(whichThreshold_counts, -TotalCount)[1,1])
+
+countOptimalPlot <-
+    ggplot(whichThreshold_counts)+
+geom_line(aes(x = Threshold, y = TotalCount))+
+geom_vline(xintercept =  pull(arrange(whichThreshold_counts, -TotalCount)[1,1]))+
+  labs(title = "Net Participants by Threshold",
+       subtitle = "Vertical Line Denotes Optimal Threshold",
+       y= "Total Count (TP - FP)")
+
+grid.arrange(countOptimalPlot, revOptimalPlot, ncol=2)
+
+
+```
+
+## Optimal Thresholds
+
+```{r 0.50 and Optimal Threshold Measures, warning = FALSE, message = FALSE}
+
+whichThreshold_Summary <-
+  whichThreshold_counts %>%
+  left_join(whichThreshold_revenue, by="Threshold")%>%
+  filter(Threshold == 0.50 | Threshold == Optimal_Threshold)
+
+whichThreshold_Summary%>%
+  kable(
+    caption = "<strong></strong>",
+    escape= FALSE,
+    format="html",
+    row.names = FALSE,
+    align="l")%>%
+  kable_styling()
+
+```
+

@@ -17,7 +17,7 @@ if (isAwesome){
 ```javascript
 if (isAwesome){
   return true
-}
+} 
 ```
 
 ### 3. Support the selection of appropriate statistical tools and techniques
