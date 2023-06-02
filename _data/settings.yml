@@ -1,5 +1,5 @@
 basic_settings:
-  site_title: Made
+  site_title: Ben Keel Analytics & Dev
   favicon_image: /images/favicon.png
 
 header_settings:
@@ -8,15 +8,15 @@ header_settings:
 
 menu_settings:
   menu_items:
-    - title: 'Projects'
+    - title: 'Data Analysis'
       url: '/'
-    - title: 'Blog'
-      url: '/blog/'
+    - title: 'Design & Dev'
+      url: '/design/'
 
 footer_settings:
   logo_image: 
   logo_width: 100
-  tagline: A beautiful, minimal portfolio Jekyll theme
+  tagline: Research analyst with data, design, and development experience
 
 hero_settings:
   background_image: /images/backgrounds/background-hero.svg
