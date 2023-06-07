@@ -1,5 +1,5 @@
 basic_settings:
-  site_title: Ben Keel Analytics & Dev
+  site_title: Ben Keel Analytics & Design
   favicon_image: /images/favicon.png
 
 header_settings:
@@ -8,12 +8,14 @@ header_settings:
 
 menu_settings:
   menu_items:
-    - title: 'Data Analysis'
+    - title: 'Design & Development'
       url: '/'
-    - title: 'Design & Dev'
-      url: '/design/'
+    - title: 'Data Analysis'
+      url: '/data/'
+    - title: 'Blog'
+      url: '/blog/'
 
-footer_settings:
+footer_settings: 
   logo_image: 
   logo_width: 100
   tagline: Research analyst with data, design, and development experience
