@@ -12,8 +12,6 @@ menu_settings:
       url: '/'
     - title: 'Data Analysis'
       url: '/data/'
-    - title: 'Blog'
-      url: '/blog/'
 
 footer_settings: 
   logo_image: 

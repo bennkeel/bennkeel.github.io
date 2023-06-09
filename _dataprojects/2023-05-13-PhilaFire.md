@@ -4,11 +4,9 @@ subtitle: An analysis of the social impacts of structure fires to support the Ph
 date: 2023-05-13 00:00:00
 description: Analysis of the Fire Department's incident-level data and Philadelphia's permit, sales, and vacancy data revealed that structure fires are associated with an increase in all three outcomes. Our team then built model for to predict every property's future after a potential fire and assembled a tool to explore the forecast.
 featured_image: /philafire/Fire_Thumbnail.png
-accent_color: '#4C60E6'
+accent_color: '#20B1AE'
 gallery_images:
-  - /philafire/Causality_Graphs.png
-  - /philafire/caseStudy_Vacancy.jpg 
-  - /philafire/Map_VacancyClusters.png
+  - /philafire/Fire_Thumbnail.png
 ---
 
 Project at the University of Pennsylvania, Spring 2023
