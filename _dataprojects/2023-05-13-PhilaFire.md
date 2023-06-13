@@ -99,7 +99,7 @@ Spatially, we saw that most vacancies in fire-stricken properties persisted in a
 
 ### Modeling and App Development
 
-In order to give the Fire Department actionable forecasts, we [modeled each outcome](https://bennkeel.github.io/MUSA_Practicum/Phila_Fire_rmd_final.html#4_Modeling_Strategy) (repairs, sales, and vacancies) across a series of predictors for each residential property in Philadelphia. Each of these models took in the attributes of the building, census variables of the community, and spatial proximity to schools and redevelopment areas, produced a likelihood of a permit (repair), a property transfer (sale), or a vacancy complaint, then classified that likelihood as a 'yes, will happen' or 'no, will not happen' based on an optimal threshold. We adjusted this threshold to be very sensitive so that it would accurately classify as many 'yes' results as possible, with the trade-off that more false positives would occur. 
+In order to give the Fire Department actionable forecasts, Myron and Kendra [modeled each outcome](https://bennkeel.github.io/MUSA_Practicum/Phila_Fire_rmd_final.html#4_Modeling_Strategy) (repairs, sales, and vacancies) across a series of predictors for each residential property in Philadelphia. Each of these models took in the attributes of the building, census variables of the community, and spatial proximity to schools and redevelopment areas, produced a likelihood of a permit (repair), a property transfer (sale), or a vacancy complaint, then classified that likelihood as a 'yes, will happen' or 'no, will not happen' based on an optimal threshold. We adjusted this threshold to be very sensitive so that it would accurately classify as many 'yes' results as possible, with the trade-off that more false positives would occur. 
 
 Here are our results:
 
@@ -111,7 +111,7 @@ Here are our results:
 
 Our qualitative analysis revealed that this model could be improved with more data about residents' insurance coverage, landlord and accurate owner-occupancy data, and local support networks. 
 
-We then visualized those predictions in a web-based application, allowing them to search by address or understand patterns on a neighborhood, block-group, or parcel level. More details about the development are available on this project's [design and development page](https://bennkeel.github.io/philaFireDesign). 
+I then visualized those predictions in a web-based application, allowing the Fire Department to search by address or understand patterns on a neighborhood, block-group, or parcel level. More details about the development are available on this project's [design and development page](https://bennkeel.github.io/philaFireDesign). 
 
 ![](/images/projects/philafire/app_nhood.jpg)
 
@@ -130,3 +130,15 @@ Responding to our analysis and research, the Fire Department and its partners ca
 * Lowering the cost of repair through non-profit variable programs, expert-led volunteer programs, or repair assistance programs mentioned above would enable faster recovery for those without emergency resources. 
 * Directing sales to local developers, land banks, and nonprofits may result in faster repairs, as seen in our case study.
 * Lowering investment risk in fire-damaged homes through public or philanthropic loans would reduce their likelihood of long-term vacancy. 
+
+---
+
+#### Tools Used:
+* R tidyverse, ggplot, and markdown for statistical analysis, modeling, and publishing
+* R MatchIt and tidyverse packages for propensity matching
+* Expert interviewing and user interview scripting for qualitative research
+* Adobe Illustrator for data visualization refinement, Photoshop for photo retouching
+* Figma for app design
+* HTML, CSS, Javascript, and Leaflet for app implementation
+* Mapbox Studio for map tile styling
+* Google Cloud Services for vector tile creation and hosting

@@ -17,3 +17,7 @@ This sample memo was practice for communicating heavy data-based reasoning in pl
 
 The modeling and cost-benefit analysis is based on cleaned data from [Public Policy Analytics textbook, Chapter 7](https://urbanspatial.github.io/PublicPolicyAnalytics/people-based-ml-models-algorithmic-fairness.html) and similar job training programs.
 
+#### My Tools and Techniques
+* R Tidyverse Packages and Markdown for data wrangling, modeling, and cost benefit analysis
+* Policy research
+* Concise, non-technical communication of technical concepts and conclusions

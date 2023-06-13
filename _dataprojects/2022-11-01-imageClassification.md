@@ -11,3 +11,6 @@ gallery_images:
 
 [Link to Presentation](https://bennkeel.github.io/documents/RemoteSensingFinal_KeelRummlerTanabe.pdf)
 
+#### Tools Used:
+* Python and Tensorflow for CNN, ResNet, and transfer learning model construction
+* Precise technical writing to communicate validity of approach

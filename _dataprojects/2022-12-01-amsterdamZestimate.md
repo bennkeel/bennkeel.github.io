@@ -9,7 +9,7 @@ gallery_images:
   - /amsterdam/building.jpg
 ---
 
-Project at the University of Pennsylvania, Fall 2022
+Project at the University of Pennsylvania, Fall 2022. Collaboration between myself, Ann Zi'an Zhang, and Tom Yuhao Sun.
 
 One of the most common ways people interface with housing data and forecast models these days is through Zillow's Zestimate. Active price estimates allow all of Zillow's users to see what works best for their own budget, saving them research time. This tool can be applied beyond home prices and curious shoppers for a use case like Airbnb rental estimation while using the same fundamentals. But beyond just curiosity, why look at short term rentals?
 
@@ -18,6 +18,8 @@ One of the most common ways people interface with housing data and forecast mode
 Airbnbs and short-term full-home vacation rentals have a contentious relationship with popular tourism cities like Amsterdam. They can limit housing supply and be a nuisance to nearby residents if the guests are not courteous. Amsterdam went so far as to ban Airbnbs in its historic center, but this rule was overturned soon after, and future regulations are uncertain. This fuzzy future makes for a tumultuous market for those that are trying to host, which is where statistical modeling can be helpful.
 
 If Amsterdam residents outside the city center had access to an accurate daily rental esimation, more may be incentivized to host within the local guidelines. The city wants to promote better experiences for its guests, and tourists want a unique experience, so spreading those experiences outside the most obvious localities may lead to greater satisfaction for all parties. 
+
+![](/images/projects/amsterdam/airbnbPop.png)
 
 #### Analysis and Modeling
 
@@ -35,4 +37,7 @@ This video below outlines the need for short-term rental hosts in other areas of
 	url = "https://www.youtube.com/embed/Xr2tM-RtyQQ"
 	full_width = true
 %}
+
+### My Tools and Techniques
+R Tidyverse Packages and Markdown for spatial and statistical analysis and modeling, Adobe Premiere Pro & Illustrator for use case and presentation. Figma for App Design.
 
