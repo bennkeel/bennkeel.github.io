@@ -111,7 +111,7 @@ Here are our results:
 
 Our qualitative analysis revealed that this model could be improved with more data about residents' insurance coverage, landlord and accurate owner-occupancy data, and local support networks. 
 
-I then visualized those predictions in a web-based application, allowing the Fire Department to search by address or understand patterns on a neighborhood, block-group, or parcel level. More details about the development are available on this project's [design and development page](https://bennkeel.github.io/philaFireDesign). 
+I then visualized those predictions in a web-based application, allowing the Fire Department to search by address or understand patterns on a neighborhood, block-group, or parcel level. More details about the development are available on this project's [design and development page](https://bennkeel.github.io/project/philafire). 
 
 ![](/images/projects/philafire/app_nhood.jpg)
 
