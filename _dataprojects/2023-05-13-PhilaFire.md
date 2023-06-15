@@ -2,7 +2,7 @@
 title: Social Impacts of Fires in Philadelphia, PA
 subtitle: An analysis of the social impacts of structure fires to support the Philadelphia Fire Department.
 date: 2023-05-13 00:00:00
-description: Analysis of the Fire Department's incident-level data and Philadelphia's permit, sales, and vacancy data revealed that structure fires are associated with an increase in all three outcomes. Our team then built model for to predict every property's future after a potential fire and assembled a tool to explore the forecast.
+description: Data and quantitative analysis, statistical modeling and propensity matching, expert interviews and qualitative analysis, housing policy
 featured_image: /philafire/Fire_Thumbnail.png
 accent_color: '#20B1AE'
 gallery_images:
@@ -13,7 +13,7 @@ gallery_images:
 
 By Myself, Myron Banez, Kendra Hills, supervised by professors Michael Fichman and Matt Harris. 
 
-In collaboration with and support of Assistant Deputy Commissioner Kathy Matheson, Senior GIS Specialist Andrew Newell, and Commissioner Adam Thiel of the Philadelphia Fire Department.
+In support of Assistant Deputy Commissioner Kathy Matheson, Senior GIS Specialist Andrew Newell, and Commissioner Adam Thiel of the Philadelphia Fire Department.
 
 [Link to Forecast Site](https://bennkeel.github.io/MUSA_Practicum/site/index.html) 
 
@@ -138,7 +138,3 @@ Responding to our analysis and research, the Fire Department and its partners ca
 * R MatchIt and tidyverse packages for propensity matching
 * Expert interviewing and user interview scripting for qualitative research
 * Adobe Illustrator for data visualization refinement, Photoshop for photo retouching
-* Figma for app design
-* HTML, CSS, Javascript, and Leaflet for app implementation
-* Mapbox Studio for map tile styling
-* Google Cloud Services for vector tile creation and hosting

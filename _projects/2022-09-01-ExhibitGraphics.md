@@ -45,7 +45,7 @@ The CVC wanted to go far above the requirements of the ADA and create a universa
 
 I oversaw the visual design after the concept phase, creating and directing the art files, then coordinating between the fabricator, CVC, and our freelance 3D printing specialist to complete the project.
 
-#### Capitol Hill
+#### Capitol Hill Over Time
 
 {% include post-components/gallery.html
 	columns = 2
@@ -93,5 +93,5 @@ Glass partitions separate the main exhibit from the Democracy Lab, a room where 
 ---
 
 #### Tools Used
-* Adobe Illustrator, Photoshop, InDesign for graphic design
-* 
+* Adobe Illustrator, Photoshop, InDesign for graphic design and installation diagrams
+* SketchUp for exhibit design

@@ -2,14 +2,14 @@
 title: Algorithmically Identifying Hurricane Damage 
 subtitle: Iterative research on deep learning techniques to classify large sets of remote sensing images.
 date: 2022-11-01 00:00:00
-description: Deep learning models like CNN and ResNet enabled us to classify a dataset of aerial photos of hurricane damage with high accuracy. 
+description: Python, Tensorflow & Deep Learning, Neural Networks
 featured_image: remoteSensing/landscape.png
-accent_color: '#4C60E6'
+accent_color: '#336633'
 gallery_images:
   - remoteSensing/landscape.png
 ---
 
-**Project at the University of Pennsylvania, Fall 2022**
+**Project at the University of Pennsylvania, Spring 2023**
 
 Collaboration between myself, Kate Tanabe, and Jack Rummler
 

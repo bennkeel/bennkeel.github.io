@@ -13,11 +13,13 @@ gallery_images:
 
 **Project at the University of Pennsylvania, Spring 2023**
 
-By Myself, Myron Banez, Kendra Hills, supervised by professors Michael Fichman and Matt Harris. In collaboration with and support of Kathy Matheson, Andrew Newell, and Commissioner Adam Thiel of the Philadelphia Fire Department (PFD).
+By Myself, Myron Banez, Kendra Hills, supervised by professors Michael Fichman and Matt Harris.
 
-[Link to Forecast Site](https://bennkeel.github.io/MUSA_Practicum/site/index.html)
+In support of Assistant Deputy Commissioner Kathy Matheson, Senior GIS Specialist Andrew Newell, and Commissioner Adam Thiel of the Philadelphia Fire Department.
 
-Visit the [data analysis page](https://bennkeel.github.io/data/philafire) for this project and read the [R Markdown Report](https://bennkeel.github.io/MUSA_Practicum/Phila_Fire_rmd_final.html) for in-depth research notes, data analysis, and R code chunks. 
+[Visit the forecast site](https://bennkeel.github.io/MUSA_Practicum/site/index.html), shown in the case study below.
+
+[Visit the data analysis page](https://bennkeel.github.io/data/philafire) for this project and read the [R Markdown Report](https://bennkeel.github.io/MUSA_Practicum/Phila_Fire_rmd_final.html) for in-depth research notes, data analysis, and R code chunks. 
 
 ### The Problem to Address
 

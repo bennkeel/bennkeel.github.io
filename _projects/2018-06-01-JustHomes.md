@@ -7,8 +7,8 @@ featured_image: /homes/exhibit_wideShot.jpg
 accent_color: '#18334C'
 gallery_images:
   - /homes/exhibit_wideShot.jpg
-  - /homes/exhibit_graphic3.png
-  - /homes/conference_1.jpg
+  - /homes/exhibit_graphic3_crop.png
+  - /homes/conference_2.jpg
 ---
 
 **Volunteer Project, Just Homes and The District Church, May 2018**
