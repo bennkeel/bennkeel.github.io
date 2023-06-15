@@ -1,112 +1,77 @@
 ---
-title: Mobile app
-subtitle: High-fidelity mobile app designs for a super awesome social media company.
-date: 2019-07-24 00:00:00
-description: This is a demo post that shows what you can do inside portfolio and blog posts. We’ve included everything you need to create engaging posts and case studies to show off your work in a beautiful way.
-featured_image: demo.jpg
-accent_color: '#4C60E6'
+title: Just Homes Pop-up Exhibit
+subtitle: A simple temporary exhibit for the first public kick-off event of Just Homes, a DC-based affordable housing initiative.
+date: 2018-05-01 00:00:00
+description: Experiential graphic design, infographics, map design, interactive exhibit, affordable housing
+featured_image: /homes/exhibit_wideShot.jpg
+accent_color: '#18334C'
 gallery_images:
-  - demo.jpg
-  - demo.jpg
-  - demo.jpg
+  - /homes/exhibit_wideShot.jpg
+  - /homes/exhibit_graphic3.png
+  - /homes/conference_1.jpg
 ---
 
-This page is a demo that shows everything you can do inside portfolio and blog posts.
+**Volunteer Project, Just Homes and The District Church, May 2018**
 
-We've included everything you need to create engaging posts about your work, and show off your case studies in a beautiful way.
+Faith-based organizations are often great partners in [creating affordable housing](https://www.youtube.com/watch?v=sWAFSt9VabA&ab_channel=CBSSundayMorning). Leadership at the District Church in Washington, D.C. recognized the need for more affordable rentals in the city, which is one of the nation's most expensive rental markets. Their volunteer team found that DC-area churches own a large amount of vacant land, which could be used for affordable development if the church's mission aligned with the project. Based on this research, the District Church established [Just Homes](https://www.justhomesdc.org/), an initiative that has provided community education, resources, connections, and volunteer organizing to equip churches to "create a just city where everyone has a home" for five years. The initiative gathered local faith leaders and government housing officials for a Vision Night in May 2018, signaling the official launch of the initiative by gathering insights and generating conversation.
 
-![](/images/demo.jpg)
+![](/images/projects/homes/just-homes-horiz-fullcolor.png)
 
-**Obviously,** we’ve styled up *all the basic* text formatting options [available in markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).
+Led by then-director Shiri Yadlin, my contribution was a three step pop-up exhibit that welcomed Vision Night attendees with some questions and presented key findings. I wanted to set the tone of the night while guests arrived and milled about to provide a base level of info for discussion. With the advice of other volunteers, I quickly fashioned the content and the exhibit design over the course of a month, then printed the content and assembled the structures. 
 
-You can create lists:
-
-* Simple bulleted lists
-* Like this one
-* Are cool
-
-And:
-
-1. Numbered lists
-2. Like this other one
-3. Are great too
-
-You can also add blockquotes, which are shown at a larger width to help break up the layout and draw attention to key parts of your content:
-
-> “Simple can be harder than complex: You have to work hard to get your thinking clean to make it simple. But it’s worth it in the end because once you get there, you can move mountains.”
-
-The theme also supports markdown tables:
-
-| Item                 | Author        | Supports tables? | Price |
-|----------------------|---------------|------------------|-------|
-| Duet Jekyll Theme    | Jekyll Themes | Yes              | $49   |
-| Index Jekyll Theme   | Jekyll Themes | Yes              | $49   |
-| Journal Jekyll Theme | Jekyll Themes | Yes              | $49   |
-
-And footnotes[^1], which link to explanations[^2] at the bottom of the page[^3].
-
-[^1]: Beautiful modern, minimal theme design.
-[^2]: Powerful features to show off your work.
-[^3]: Maintained and supported by the theme developer.
-
-You can throw in some horizontal rules too:
-
----
-
-#### Image galleries
-
-Here's a really neat custom feature we added – galleries:
+I wanted visitors to place themselves in the topic of housing, so I proposed multiple interactive parts for the exhibit. Here are two examples below:
 
 {% include post-components/gallery.html
 	columns = 2
 	full_width = true
-	images = "/images/demo.jpg,/images/demo.jpg,/images/demo.jpg,/images/demo.jpg,
+	images = "/images/projects/homes/exhibit_introPanel1.jpg, /images/projects/homes/exhibit_panel2.1.jpg
 	"
 %}
-
-Inspired by the Galleries feature from WordPress, we've made it easy to create grid layouts for your images. Just use a simple Liquid snippet in your post to create a masonry grid image layout:
-
-{% raw %}
-```liquid
-{% include post-components/gallery.html
-	columns = 2
-	full_width = true
-	images = "/images/demo.jpg,/images/demo.jpg,/images/demo.jpg,/images/demo.jpg,
-	"
-%}
-```
-{% endraw %}
-
-*See what we did there? Code and syntax highlighting is built-in too!*
-
-Change the number inside the 'columns' setting to create different types of gallery for all kinds of purposes. You can even click on each image to seamlessly enlarge it on the page.
-
-
-#### Image carousels
-
-Here's another gallery with only one column, which creates a carousel slide-show instead.
-
-A nice little feature: the carousel only advances when it is in view, so your visitors won't scroll down to find it half way through your images.
 
 {% include post-components/gallery.html
 	columns = 1
 	full_width = true
-	images = "/images/demo.jpg,/images/demo.jpg,/images/demo.jpg
+	images = "/images/projects/homes/exhibit_infographic1.png
 	"
 %}
 
-#### What about videos?
+In the first, we collected the values that every attendee associates with the word "home" to establish what good-quality housing is. The visitor fills in the question with a color specific to where they live. The text below the dot informs them of common housing terms like "cost burdened", which specifically refers to a household paying over 30% of their income in rent. 
 
-Videos are an awesome way to show off your work in a more engaging and personal way, and we’ve made sure they work great on our themes. Just paste an embed code from YouTube or Vimeo, and the theme makes sure it displays perfectly:
+After these, two panels illustrate DC's affordable housing issues, and four panels describe the concept of "justice housing" and Just Homes' broad strategy to support it.
 
-{% include post-components/video.html
-	url = "https://player.vimeo.com/video/270725085?color=6c6e95&title=0&byline=0"
+{% include post-components/gallery.html
+	columns = 1
 	full_width = true
+	images = "/images/projects/homes/exhibit_panel2.2.jpg
+	"
 %}
 
-### Pretty cool, huh?
+{% include post-components/gallery.html
+	columns = 2
+	full_width = true
+	images = "/images/projects/homes/exhibit_graphic1.png, /images/projects/homes/exhibit_graphic2.png
+	"
+%}
 
-We've packed this theme with powerful features to show off your work.
-Why not put them to use on your new website?
+{% include post-components/gallery.html
+	columns = 1
+	full_width = true
+	images = "/images/projects/homes/exhibit_graphic3.png
+	"
+%}
 
-<a href="https://jekyllthemes.io/theme/made-portfolio-jekyll-theme" class="button--fill">Get This Theme</a>
+To visualize the research Just Homes had performed in the years prior, I created a choropleth map of DC's median income in 2015, and combined it with general locations and size of vacant church land with the possibility of development. This map illustrated that churches across DC can help the affordable housing supply if developing was within their capability and mission.
+
+![](/images/projects/homes/exhibit_graphic4.png)
+
+This strategy panel described the service aspect of Just Homes vision. I made this illustration to show a vision of helpful neighbors and service for those who move somewhere new. 
+
+![](/images/projects/homes/conference_1.jpg)
+
+The following presentations and conversations brought together housing experts, faith leaders, and congregants.
+
+---
+
+#### Tools Used:
+* Adobe Illustrator for exhibit design, schematics, and graphics
+* Mapbox Studio for data visualization and map styling 

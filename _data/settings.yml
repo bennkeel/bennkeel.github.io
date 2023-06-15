@@ -1,5 +1,5 @@
 basic_settings:
-  site_title: BEN KEEL ANALYTICS & DESIGN
+  site_title: BEN KEEL
   favicon_image: /images/favicon.png
 
 header_settings:
@@ -91,7 +91,7 @@ font_settings:
     size: 64
     size_small: 42
     weight: 900
-    letter_spacing: -1.5
+    letter_spacing: 0
     letter_spacing_small: -1.2
     line_height: 72
     line_height_small: 48
@@ -99,7 +99,7 @@ font_settings:
     size: 48
     size_small: 36
     weight: 700
-    letter_spacing: -1.6
+    letter_spacing: 0
     letter_spacing_small: -1.04
     line_height: 56
     line_height_small: 44
@@ -107,22 +107,22 @@ font_settings:
     size: 40
     size_small: 30
     weight: 400
-    letter_spacing: -1.4
+    letter_spacing: 0
     letter_spacing_small: -0.54
     line_height: 48
     line_height_small: 36
   h4:
     size: 32
     size_small: 28
-    weight: 700
-    letter_spacing: -1
+    weight: 500
+    letter_spacing: 0
     letter_spacing_small: -0.6
     line_height: 36
   h5:
     small_size: 17
     medium_size: 20
     large_size: 20
-    weight: 700
+    weight: 500
     letter_spacing: 0
     line_height: 1.6
   h6:

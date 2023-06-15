@@ -9,7 +9,7 @@ gallery_images:
   - /philafire/Fire_Thumbnail.png
 ---
 
-Project at the University of Pennsylvania, Spring 2023
+**Project at the University of Pennsylvania, Spring 2023**
 
 By Myself, Myron Banez, Kendra Hills, supervised by professors Michael Fichman and Matt Harris. 
 

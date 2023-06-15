@@ -9,7 +9,9 @@ gallery_images:
   - /amsterdam/building.jpg
 ---
 
-Project at the University of Pennsylvania, Fall 2022. Collaboration between myself, Ann Zi'an Zhang, and Tom Yuhao Sun.
+**Project at the University of Pennsylvania, Fall 2022**
+
+Collaboration between myself, Ann Zi'an Zhang, and Tom Yuhao Sun
 
 One of the most common ways people interface with housing data and forecast models these days is through Zillow's Zestimate. Active price estimates allow all of Zillow's users to see what works best for their own budget, saving them research time. This tool can be applied beyond home prices and curious shoppers for a use case like Airbnb rental estimation while using the same fundamentals. But beyond just curiosity, why look at short term rentals?
 
@@ -38,6 +40,10 @@ This video below outlines the need for short-term rental hosts in other areas of
 	full_width = true
 %}
 
-### My Tools and Techniques
-R Tidyverse Packages and Markdown for spatial and statistical analysis and modeling, Adobe Premiere Pro & Illustrator for use case and presentation. Figma for App Design.
+---
+
+#### Tools Used:
+* R Tidyverse Packages and Markdown for spatial and statistical analysis and modeling
+* Adobe Premiere Pro & Illustrator for use case and presentation
+* Figma for App Design
 

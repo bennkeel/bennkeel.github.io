@@ -9,7 +9,15 @@ gallery_images:
   - remoteSensing/landscape.png
 ---
 
+**Project at the University of Pennsylvania, Fall 2022**
+
+Collaboration between myself, Kate Tanabe, and Jack Rummler
+
+Personal contributions include data imports, CNN modeling, and data 
+
 [Link to Presentation](https://bennkeel.github.io/documents/RemoteSensingFinal_KeelRummlerTanabe.pdf)
+
+---
 
 #### Tools Used:
 * Python and Tensorflow for CNN, ResNet, and transfer learning model construction

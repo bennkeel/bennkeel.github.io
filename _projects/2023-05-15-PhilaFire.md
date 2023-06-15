@@ -4,14 +4,14 @@ subtitle: A creatively coded app and case study for the Philadelphia Fire Depart
 date: 2023-05-13 00:00:00
 description: Web app design, front-end development, interactive maps, data visualization, user experience design, visual storytelling
 featured_image: /philafire/app_landing.jpg
-accent_color: '#4C60E6'
+accent_color: '#D36128'
 gallery_images:
   - /philafire/gallery_landing.jpg
   - /philafire/gallery_parcelsSearch.jpg
   - /philafire/gallery_caseStudy.jpg
 ---
 
-Project at the University of Pennsylvania, Spring 2023
+**Project at the University of Pennsylvania, Spring 2023**
 
 By Myself, Myron Banez, Kendra Hills, supervised by professors Michael Fichman and Matt Harris. In collaboration with and support of Kathy Matheson, Andrew Newell, and Commissioner Adam Thiel of the Philadelphia Fire Department (PFD).
 
@@ -131,7 +131,9 @@ Myron and I then added on the neighborhood, block group, and parcel visualizatio
 3. Running those scripts and storing the data on Cloud Storage and verifying the output.
 4. Accessing the tiles and loading a styled version onto our app using [Leaflet's Vector Grid](https://leaflet.github.io/Leaflet.VectorGrid/vectorgrid-api-docs.html) plugin. 
 
-### Tools Used: 
+---
+
+#### Tools Used: 
 * HTML, CSS, Javascript for site building and scrollytelling.
 * Leaflet JS for map functionality and Leaflet Vector Grid plugin for vector tile functionality
 * Google Cloud Services for vector tile creation and hosting
