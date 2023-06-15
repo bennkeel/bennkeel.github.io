@@ -1,6 +1,6 @@
 ---
 title: Recidivism Algorithm Policy Memo
-subtitle: An argument for using algorithms appropriately to predict recidivism.
+subtitle: An argument for using algorithms appropriately to predict recidivism
 date: 2022-12-12 00:00:00
 description: Policy research, data analysis and modeling, confusion matrices, brief writing
 featured_image: /recidivism/recid_thumbnail.jpg

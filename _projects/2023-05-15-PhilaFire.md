@@ -1,19 +1,19 @@
 ---
-title: Fire Recovery Forecasts in Philadelphia
-subtitle: A creatively coded app and case study for the Philadelphia Fire Department, forecasting fire recovery for most residences in the city.
+title: Philadelphia Fire Recovery Forecasts App
+subtitle: A creatively coded app and case study for the Philadelphia Fire Department, forecasting fire recovery for most residences in the city
 date: 2023-05-13 00:00:00
 description: Web app design, front-end development, interactive maps, data visualization, user experience design, visual storytelling
 featured_image: /philafire/app_landing.jpg
 accent_color: '#D36128'
 gallery_images:
-  - /philafire/gallery_landing.jpg
   - /philafire/gallery_parcelsSearch.jpg
+  - /philafire/gallery_landing.jpg
   - /philafire/gallery_caseStudy.jpg
 ---
 
 **Project at the University of Pennsylvania, Spring 2023**
 
-By Myself, Myron Banez, Kendra Hills, supervised by professors Michael Fichman and Matt Harris.
+By Myself, Myron Banez, and Kendra Hills. Supervised by Michael Fichman and Matt Harris.
 
 In support of Assistant Deputy Commissioner Kathy Matheson, Senior GIS Specialist Andrew Newell, and Commissioner Adam Thiel of the Philadelphia Fire Department.
 

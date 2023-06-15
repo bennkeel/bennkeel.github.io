@@ -2,7 +2,7 @@
 title: Amsterdam AirBnB Price Estimation 
 subtitle: Researching and modeling AirBnB prices to benefit a high demand tourism market
 date: 2022-12-01 00:00:00
-description: Amsterdam, like many high-tourism cities, has an issue with balancing its tourism experience with the local supply of housing and resident quality of life. My group created a price estimation model and a sample app to target potential new hosts outside the most popular areas of the city.
+description: Spatial analysis, statistical modeling, housing policy research, user experience design
 featured_image: /amsterdam/map_thumbnail_upscale.jpg
 accent_color: '#838383'
 gallery_images:

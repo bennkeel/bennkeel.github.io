@@ -1,6 +1,6 @@
 ---
 title: Algorithmically Identifying Hurricane Damage 
-subtitle: Iterative research on deep learning techniques to classify large sets of remote sensing images.
+subtitle: Iterative research on deep learning techniques to classify large sets of remote sensing images
 date: 2022-11-01 00:00:00
 description: Python, Tensorflow & Deep Learning, Neural Networks
 featured_image: remoteSensing/landscape.png

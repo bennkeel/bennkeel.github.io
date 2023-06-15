@@ -1,6 +1,6 @@
 ---
 title: Just Homes Pop-up Exhibit
-subtitle: A simple temporary exhibit for the first public kick-off event of Just Homes, a DC-based affordable housing initiative.
+subtitle: A simple temporary exhibit for the first public kick-off event of Just Homes, a DC-based affordable housing initiative
 date: 2018-05-01 00:00:00
 description: Experiential graphic design, infographics, map design, interactive exhibit, affordable housing
 featured_image: /homes/exhibit_wideShot.jpg

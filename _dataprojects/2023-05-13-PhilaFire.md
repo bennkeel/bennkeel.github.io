@@ -1,8 +1,8 @@
 ---
 title: Social Impacts of Fires in Philadelphia, PA
-subtitle: An analysis of the social impacts of structure fires to support the Philadelphia Fire Department.
+subtitle: An analysis of the social impacts of structure fires to support the Philadelphia Fire Department
 date: 2023-05-13 00:00:00
-description: Data and quantitative analysis, statistical modeling and propensity matching, expert interviews and qualitative analysis, housing policy
+description: Data and quantitative analysis, statistical modeling and propensity matching, expert interviews and qualitative analysis, housing policy research
 featured_image: /philafire/Fire_Thumbnail.png
 accent_color: '#20B1AE'
 gallery_images:
