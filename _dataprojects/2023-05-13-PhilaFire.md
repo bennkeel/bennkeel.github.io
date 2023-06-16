@@ -67,7 +67,7 @@ Exploratory analysis of our combined dataset revealed that a particular pair of 
 {% include post-components/gallery.html
 	columns = 1
 	full_width = true
-	images = "/images/projects/philaFire/caseStudy_Vacancy.jpg, /images/projects/philaFire/caseStudy_Sales.jpg, /images/projects/philaFire/caseStudy_Repairs.jpg
+	images = "/images/projects/philafire/caseStudy_Vacancy.jpg, /images/projects/philafire/caseStudy_Sales.jpg, /images/projects/philafire/caseStudy_Repairs.jpg
 	"
 %}
 
@@ -80,7 +80,7 @@ We tested the association between fires and each of these outcomes by creating a
 {% include post-components/gallery.html
 	columns = 1
 	full_width = true
-	images = "/images/projects/philaFire/Causality_Permits.png, /images/projects/philaFire/Causality_Sales.png, /images/projects/philaFire/Causality_Vacancy.png
+	images = "/images/projects/philafire/Causality_Permits.png, /images/projects/philafire/Causality_Sales.png, /images/projects/philafire/Causality_Vacancy.png
 	"
 %}
 

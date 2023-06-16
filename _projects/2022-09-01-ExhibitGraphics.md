@@ -43,7 +43,7 @@ The legislative process is complex, but creates lasting change. Our interactive 
 
 The CVC wanted to go far above the requirements of the ADA and create a universally accessible experience when refreshing their exhibit. G&A recognized the increased availability of new, durable tactile fabrication methods and mounting trends in tactile artifacts and diagrams, so the initial concepts offered up many touchable opportunities for the exhibit. This technique was best used to both clarify the existing content and grant blind or low vision visitors access to the visual elements of the Capitol's art and architecture.
 
-I oversaw the visual design after the concept phase, creating and directing the art files, then coordinating between the fabricator, CVC, and our freelance 3D printing specialist to complete the project.
+I oversaw the visual design of these graphics from development to final production, creating and directing the art files then coordinating between the fabricator, CVC, and our freelance 3D printing specialist to complete the project.
 
 #### Capitol Hill Over Time
 
@@ -54,7 +54,7 @@ I oversaw the visual design after the concept phase, creating and directing the 
 	"
 %}
 
-Each tactile model was drawn from a top-down photo of its corresponding scenic model, then reviewed thoroughly for content accuracy. ADA-compliant numbers match a key on the right side of the panel.
+Each tactile model was drawn from a top-down photo of its corresponding scenic model, then reviewed thoroughly for content accuracy. ADA-compliant numbers match a key on the right side of the panel. They use a combination fo CNC routing for the base plate and 3D printing for the buildings and numbers. 
 
 {% include post-components/gallery.html
 	columns = 1
@@ -74,19 +74,19 @@ Latter models in the five-model series highlight which buildings were new and wh
 	"
 %}
 
-The CVC's original exhibit drew visitors in with its large scale replica of the Capitol Building's signature dome. Though this model itself is durable and visitors can get a sense of the details through touch, we realized it's difficult for any blind or low-vision visitor to get a sense of the overall shape of the dome exterior or the numerous interior details. In order to reach this audience, we illustrated the interior and exterior of the dome based on reference material and closely-reviewed models, then commissioned a 3D printing specialist to create these reduced-dimension versions that worked with the exhibit space. 
+The CVC's original exhibit drew visitors in with its large scale replica of the Capitol Building's signature dome. Though visitors can get a sense of the details through touching the large model, we realized it's difficult for any blind or low-vision visitor to get a sense of the overall shape of the dome exterior or the numerous interior details. In order to reach this audience, we illustrated the interior and exterior of the dome based on reference material and closely-reviewed models, then commissioned a 3D printing specialist to create these reduced-dimension versions that worked with the exhibit space. 
 
 ![](/images/projects/cvc/CVC_G4_DomeModel.png)
 
 
 ### Democracy Lab
 
-Glass partitions separate the main exhibit from the Democracy Lab, a room where each wall and table hosts an opportunity to practice the job of a lawmaker. Visitors of all ages can vote on weekly issues, practice speeches, draft bills, and learn about different parts of the nation in each different activity. The room aims to be a lively center of learning and fun.
+Glass partitions separate the main exhibit from the Democracy Lab, a room where each wall and table hosts an opportunity to practice the job of a lawmaker. Visitors of all ages can vote on weekly issues, practice speeches, draft bills, and learn about different parts of the nation. The room aims to be a lively center of learning and fun.
 
 {% include post-components/gallery.html
 	columns = 2
 	full_width = true
-	images = "/images/projects/cvc/g7_game1.jpg, /images/projects/cvc/g7_map.png, /images/projects/cvc/g7_game2.jpg, /images/projects/cvc/g7_cards.jpg
+	images = "/images/projects/cvc/g7_game1_1.jpg, /images/projects/cvc/g7_map.png, /images/projects/cvc/g7_game2.jpg, /images/projects/cvc/g7_cards.jpg
 	"
 %}
 
@@ -94,4 +94,4 @@ Glass partitions separate the main exhibit from the Democracy Lab, a room where 
 
 #### Tools Used
 * Adobe Illustrator, Photoshop, InDesign for graphic design and installation diagrams
-* SketchUp for exhibit design
+* SketchUp, Vectorworks for exhibit design
