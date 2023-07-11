@@ -39,6 +39,8 @@ The "Congress Over Time" gallery is a chronological view of the legislative bran
 
 The legislative process is complex, but creates lasting change. Our interactive team brought the "Can You Pass the Law?" game on the right into the main exhibit, accompanied by my infographics that illustrate all its twists and conditions. 
 
+![](/images/projects/cvc/g6_bill_1.jpg)
+
 ### Tactile Elements
 
 The CVC wanted to go far above the requirements of the ADA and create a universally accessible experience when refreshing their exhibit. G&A recognized the increased availability of new, durable tactile fabrication methods and mounting trends in tactile artifacts and diagrams, so the initial concepts offered up many touchable opportunities for the exhibit. This technique was best used to both clarify the existing content and grant blind or low vision visitors access to the visual elements of the Capitol's art and architecture.
